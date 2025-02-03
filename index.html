@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Log</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            width: 800px;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .section {
+            width: 48%;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 26px;
+            margin-bottom: 20px;
+            color: #4CAF50;
+        }
+
+        label {
+            font-weight: 600;
+            margin-top: 12px;
+            display: block;
+            color: #333;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px;
+            width: 100%;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .options {
+            margin-top: 20px;
+        }
+
+        .result, .total {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        .result p {
+            margin: 8px 0;
+        }
+
+        .total {
+            background-color: #e8f5e9;
+            border-color: #b2dfdb;
+        }
+
+        .total p {
+            font-weight: 600;
+            font-size: 16px;
+            color: #2c6c3a;
+        }
+
+        .result h3, .total h3 {
+            margin-top: 0;
+            font-size: 20px;
+            color: #333;
+        }
+
+        .error-message {
+            color: #f44336;
+            font-size: 14px;
+            margin-top: -15px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 100%;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Employee Section -->
+        <div class="section">
+            <h1>Employee Selection</h1>
+
+            <label for="employee">Select Employee:</label>
+            <select id="employee" onchange="showOptions()">
+                <option value="">--Select an Employee--</option>
+                <option value="John Doe">John Doe</option>
+                <option value="Jane Smith">Jane Smith</option>
+                <option value="Michael Johnson">Michael Johnson</option>
+            </select>
+
+            <div id="options" class="options" style="display: none;">
+                <h3>Enter Values for Selected Employee:</h3>
+                <label for="short">Short:</label>
+                <input type="number" id="short" placeholder="Enter short value">
+
+                <label for="long">Long:</label>
+                <input type="number" id="long" placeholder="Enter long value">
+
+                <label for="extra-long">Extra Long:</label>
+                <input type="number" id="extra-long" placeholder="Enter extra long value">
+
+                <button onclick="submitForm()">Submit</button>
+                <p id="error-message" class="error-message"></p>
+            </div>
+
+            <div id="result" class="result" style="display: none;">
+                <h3>Submitted Values:</h3>
+                <p><strong>Employee:</strong> <span id="result-employee"></span></p>
+                <p><strong>Short:</strong> <span id="result-short"></span></p>
+                <p><strong>Long:</strong> <span id="result-long"></span></p>
+                <p><strong>Extra Long:</strong> <span id="result-extra-long"></span></p>
+                <p><strong>Total (Sum):</strong> <span id="result-total"></span></p>
+            </div>
+
+            <div id="total" class="total" style="display: none;">
+                <h3>Total Wages:</h3>
+                <p><strong>Total Wages:</strong> <span id="result-wages"></span></p>
+            </div>
+        </div>
+
+        <!-- Delivery Section -->
+        <div class="section">
+            <h1>Delivery Selection</h1>
+
+            <label for="delivery">Select Delivery:</label>
+            <select id="delivery" onchange="showDeliveryOptions()">
+                <option value="">--Select a Delivery--</option>
+                <option value="Standard">Standard</option>
+                <option value="Express">Express</option>
+                <option value="Same-Day">Same-Day</option>
+            </select>
+
+            <div id="delivery-options" class="options" style="display: none;">
+                <h3>Enter Value for Delivery:</h3>
+                <label for="delivery-value">Value:</label>
+                <input type="number" id="delivery-value" placeholder="Enter delivery value">
+
+                <button onclick="submitDeliveryForm()">Submit</button>
+                <p id="delivery-error-message" class="error-message"></p>
+            </div>
+
+            <div id="delivery-result" class="result" style="display: none;">
+                <h3>Submitted Delivery:</h3>
+                <p><strong>Delivery Type:</strong> <span id="result-delivery"></span></p>
+                <p><strong>Value:</strong> <span id="result-delivery-value"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Employee Form Functions
+        function showOptions() {
+            const employeeSelect = document.getElementById('employee');
+            const optionsDiv = document.getElementById('options');
+            const resultDiv = document.getElementById('result');
+            const totalDiv = document.getElementById('total');
+
+            resultDiv.style.display = 'none';
+            totalDiv.style.display = 'none';
+
+            if (employeeSelect.value !== "") {
+                optionsDiv.style.display = 'block';
+            } else {
+                optionsDiv.style.display = 'none';
+            }
+        }
+
+        function submitForm() {
+            const employeeSelect = document.getElementById('employee');
+            const shortInput = document.getElementById('short');
+            const longInput = document.getElementById('long');
+            const extraLongInput = document.getElementById('extra-long');
+            const resultDiv = document.getElementById('result');
+            const totalDiv = document.getElementById('total');
+            const errorMessage = document.getElementById('error-message');
+            const optionsDiv = document.getElementById('options');
+
+            errorMessage.textContent = '';
+
+            // Validation for empty fields
+            if (!shortInput.value || !longInput.value || !extraLongInput.value || employeeSelect.value === "") {
+                errorMessage.textContent = "Please fill in all fields with valid numbers.";
+                return;
+            }
+
+            const shortValue = parseFloat(shortInput.value);
+            const longValue = parseFloat(longInput.value);
+            const extraLongValue = parseFloat(extraLongInput.value);
+
+            const totalValue = shortValue + longValue + extraLongValue;
+            const shortWages = shortValue * 1.2;
+            const longWages = longValue * 1.5;
+            const extraLongWages = extraLongValue * 2;
+            const totalWages = shortWages + longWages + extraLongWages;
+
+            if (!isNaN(totalValue) && totalValue > 0) {
+                const currentDate = new Date().toISOString().split('T')[0];
+
+                // Send the employee data to Google Sheets (Employee URL)
+                sendEmployeeData(currentDate, employeeSelect, shortValue, longValue, extraLongValue, totalValue, totalWages);
+
+                // Display the results
+                document.getElementById('result-employee').textContent = employeeSelect.value;
+                document.getElementById('result-short').textContent = shortValue;
+                document.getElementById('result-long').textContent = longValue;
+                document.getElementById('result-extra-long').textContent = extraLongValue;
+                document.getElementById('result-total').textContent = totalValue.toFixed(2);
+                document.getElementById('result-wages').textContent = totalWages.toFixed(2);
+
+                resultDiv.style.display = 'block';
+                totalDiv.style.display = 'block';
+
+                // Hide the options and reset the form fields
+                optionsDiv.style.display = 'none';
+                shortInput.value = '';
+                longInput.value = '';
+                extraLongInput.value = '';
+            } else {
+                errorMessage.textContent = "Please fill in all fields with valid numbers.";
+            }
+        }
+
+        function sendEmployeeData(currentDate, Employee, Short, Long, ExtraLong, TotalValue, TotalWages) {
+            const url = 'https://script.google.com/macros/s/AKfycbxRoi5MNB9kH56lw00aS9d4cCnI-Wvhvt9hxH5BYBd7AtXKxivLs8yC7n1qDBw0RFVvjQ/exec'; // Replace with Employee Google Apps Script URL
+
+            const data = {
+                Date: currentDate,
+                Employee: Employee,
+                Short: Short,
+                Long: Long,
+                ExtraLong: ExtraLong,
+                TotalValue: TotalValue,
+                TotalWages: TotalWages
+            };
+
+            fetch(url, {
+                method: 'POST',
+                body: new URLSearchParams(data),
+                headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        }
+            })
+            .then(response => response.text())
+            .then(response => console.log(response))
+            .catch(error => console.error('Error sending data to Google Sheets:', error));
+        }
+
+        // Delivery Form Functions
+        function showDeliveryOptions() {
+            const deliverySelect = document.getElementById('delivery');
+            const deliveryOptionsDiv = document.getElementById('delivery-options');
+            const deliveryResultDiv = document.getElementById('delivery-result');
+            
+            deliveryResultDiv.style.display = 'none';
+
+            if (deliverySelect.value !== "") {
+                deliveryOptionsDiv.style.display = 'block';
+            } else {
+                deliveryOptionsDiv.style.display = 'none';
+            }
+        }
+
+        function submitDeliveryForm() {
+            const deliverySelect = document.getElementById('delivery');
+            const deliveryValueInput = document.getElementById('delivery-value');
+            const deliveryResultDiv = document.getElementById('delivery-result');
+            const deliveryErrorMessage = document.getElementById('delivery-error-message');
+            const deliveryOptionsDiv = document.getElementById('delivery-options');
+
+            deliveryErrorMessage.textContent = '';
+            const deliveryValue = parseFloat(deliveryValueInput.value) || 0;
+
+            // Validate inputs
+            if (deliverySelect.value !== "" && !isNaN(deliveryValue) && deliveryValue > 0) {
+                const currentDate = new Date().toISOString().split('T')[0];
+
+                // Send the data to Google Sheets (Delivery URL)
+                sendDeliveryData(currentDate, deliverySelect.value, deliveryValue);
+
+                // Update the UI with the submitted values
+                document.getElementById('result-delivery').textContent = deliverySelect.value;
+                document.getElementById('result-delivery-value').textContent = deliveryValue.toFixed(2);
+
+                deliveryResultDiv.style.display = 'block';
+
+                // Reset form fields
+                deliveryValueInput.value = '';
+                deliverySelect.value = '';
+                deliveryOptionsDiv.style.display = 'none';
+
+                deliveryErrorMessage.textContent = "Data saved successfully!";
+                deliveryErrorMessage.style.color = "#4CAF50";
+            } else {
+                deliveryErrorMessage.textContent = "Please fill in all fields with valid numbers.";
+                deliveryErrorMessage.style.color = "#f44336";
+            }
+        }
+
+        // Function to send delivery data to Google Sheets
+        function sendDeliveryData(Date, DeliveryType, DeliveryValue) {
+            const url = 'YOUR_DELIVERY_GOOGLE_SCRIPT_URL'; // Replace with Delivery Google Apps Script URL
+
+            const data = {
+                Date: Date,
+                DeliveryType: DeliveryType,
+                DeliveryValue: DeliveryValue.toFixed(2)
+            };
+
+            fetch(url, {
+                method: 'POST',
+                body: new URLSearchParams(data)
+            })
+            .then(response => response.text())
+            .then(response => console.log(response))
+            .catch(error => console.error('Error sending data to Google Sheets:', error));
+        }
+    </script>
+</body>
+</html>
